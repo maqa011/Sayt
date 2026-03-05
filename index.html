@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7b</title>
+    <title>Qafqaz Ultimate Chat</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -13,84 +13,76 @@
             height: 100vh; display: flex; flex-direction: column; 
         }
 
-        /* Header & Profile Section */
         header {
             background: #075e54; color: white; padding: 10px 15px;
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 100;
         }
         .user-profile-header { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .header-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #128c7e; }
+        .header-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #128c7e; border: 1px solid #fff; }
 
-        /* Chat Area */
         #chat-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .message-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 80%; }
+        
+        .message-wrapper { display: flex; align-items: flex-end; gap: 8px; max-width: 85%; position: relative; }
         .my-msg { align-self: flex-end; flex-direction: row-reverse; }
-        .msg-content { padding: 8px 12px; border-radius: 10px; font-size: 15px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        
+        .msg-content { 
+            padding: 8px 12px; border-radius: 10px; font-size: 15px; 
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1); cursor: pointer;
+            position: relative;
+        }
         .received { background: white; }
         .sent { background: #dcf8c6; }
 
-        /* Input Area & Emoji */
-        #input-area { background: #f0f0f0; padding: 10px; display: flex; gap: 8px; align-items: center; position: relative; }
-        input { flex: 1; padding: 10px 15px; border: none; border-radius: 20px; outline: none; }
-        .emoji-btn { font-size: 20px; cursor: pointer; background: none; border: none; }
-        #emoji-picker { 
-            position: absolute; bottom: 60px; left: 10px; background: white; 
-            padding: 10px; border-radius: 10px; display: none; grid-template-columns: repeat(5, 1fr); gap: 5px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        }
+        #typing-indicator { font-size: 12px; color: #555; font-style: italic; padding: 5px 20px; min-height: 20px; }
 
-        /* Settings Modal */
+        #input-area { background: #f0f0f0; padding: 10px; display: flex; gap: 8px; align-items: center; }
+        input { flex: 1; padding: 12px 15px; border: none; border-radius: 25px; outline: none; }
+
         #settings-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 200; color: white;
+            background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 200;
         }
-        .modal-box { background: #fff; color: #333; padding: 20px; border-radius: 15px; width: 90%; max-width: 350px; }
-        .modal-box input { border: 1px solid #ddd; width: 100%; margin: 10px 0; }
-        .close-btn { margin-top: 15px; color: #075e54; cursor: pointer; font-weight: bold; }
-
-        button.main-btn { background: #075e54; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+        .modal-box { background: #fff; padding: 25px; border-radius: 15px; width: 90%; max-width: 320px; }
+        .main-btn { background: #075e54; color: white; border: none; padding: 10px; border-radius: 20px; cursor: pointer; width: 100%; margin-top: 10px; }
+        
+        .delete-btn { font-size: 10px; color: red; margin-top: 5px; display: block; text-align: right; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="user-profile-header" onclick="toggleSettings()">
-        <img id="my-avatar-img" class="header-avatar" src="https://via.placeholder.com/40" alt="P">
+        <img id="my-avatar-img" class="header-avatar" src="https://via.placeholder.com/40">
         <div class="header-info">
-            <h2 id="display-name" style="font-size: 16px;">Yüklənir...</h2>
-            <p style="font-size: 11px; opacity: 0.8;">Profilə toxun</p>
+            <h2 id="display-name" style="font-size: 15px;">Yüklənir...</h2>
+            <p id="online-count" style="font-size: 10px; opacity: 0.9;">onlayn: ...</p>
         </div>
     </div>
-    <div style="font-weight: bold;">Qafqaz Chat</div>
+    <div style="font-weight: bold; font-size: 14px;">Qafqaz Chat</div>
 </header>
 
 <div id="chat-container"></div>
-
-<div id="emoji-picker"></div>
+<div id="typing-indicator"></div>
 
 <div id="input-area">
-    <button class="emoji-btn" onclick="toggleEmoji()">😊</button>
     <input type="text" id="msgInput" placeholder="Mesaj yazın..." autocomplete="off">
-    <button class="main-btn" onclick="sendMessage()">Göndər</button>
+    <button class="main-btn" style="width: auto;" onclick="sendMessage()">➤</button>
 </div>
 
 <div id="settings-modal">
     <div class="modal-box">
-        <h3>Profil Ayarları</h3>
-        <label>Adın:</label>
-        <input type="text" id="newNameInput">
-        <label>Profil Şəkli (URL):</label>
-        <input type="text" id="newPicInput" placeholder="https://resim-linki.jpg">
-        <button class="main-btn" style="width: 100%;" onclick="updateProfile()">Yadda Saxla</button>
-        <p class="close-btn" onclick="toggleSettings()">Bağla</p>
+        <h3 style="margin-bottom: 10px;">Profil Ayarları</h3>
+        <input type="text" id="newNameInput" placeholder="Yeni ad">
+        <input type="text" id="newPicInput" placeholder="Profil şəkli URL">
+        <button class="main-btn" onclick="updateProfile()">Yadda Saxla</button>
+        <button class="main-btn" style="background:#888" onclick="toggleSettings()">Bağla</button>
     </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getDatabase, ref, push, onChildAdded, onChildRemoved, set, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCoV-OntqQIdsNofRa5YECC2Qc5gPyonKU",
@@ -105,81 +97,108 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const messagesRef = ref(db, 'messages');
+  const typingRef = ref(db, 'typing');
+  const presenceRef = ref(db, 'presence');
 
-  // Profil Məlumatları
-  let myName = localStorage.getItem('chat_name') || "User" + Math.floor(Math.random() * 1000);
+  let myName = localStorage.getItem('chat_name') || "İstifadəçi" + Math.floor(Math.random() * 999);
   let myPic = localStorage.getItem('chat_pic') || "https://ui-avatars.com/api/?name=" + myName;
+  let myId = Math.random().toString(36).substring(7);
 
-  function updateUI() {
-      document.getElementById('display-name').innerText = myName;
-      document.getElementById('my-avatar-img').src = myPic;
-      document.getElementById('newNameInput').value = myName;
-      document.getElementById('newPicInput').value = myPic;
-  }
-  updateUI();
-
-  // Settings Fonksiyonları
-  window.toggleSettings = () => {
-      const modal = document.getElementById('settings-modal');
-      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-  };
-
-  window.updateProfile = () => {
-      myName = document.getElementById('newNameInput').value.trim() || myName;
-      myPic = document.getElementById('newPicInput').value.trim() || myPic;
-      localStorage.setItem('chat_name', myName);
-      localStorage.setItem('chat_pic', myPic);
-      updateUI();
-      toggleSettings();
-  };
-
-  // Emoji Paneli
-  const emojis = ['😊', '😂', '😍', '🔥', '👍', '🙌', '😢', '😮', '🎉', '❤️'];
-  const picker = document.getElementById('emoji-picker');
-  emojis.forEach(e => {
-      const span = document.createElement('span');
-      span.innerText = e;
-      span.style.cursor = 'pointer';
-      span.style.fontSize = '24px';
-      span.onclick = () => { document.getElementById('msgInput').value += e; toggleEmoji(); };
-      picker.appendChild(span);
+  // Onlayn Sayı
+  const myPresence = ref(db, 'presence/' + myId);
+  set(myPresence, true);
+  onValue(presenceRef, (snap) => {
+      document.getElementById('online-count').innerText = "onlayn: " + (snap.size || 1);
   });
 
-  window.toggleEmoji = () => {
-      picker.style.display = picker.style.display === 'grid' ? 'none' : 'grid';
+  // Profil Güncəlləmə
+  window.updateProfile = () => {
+      myName = document.getElementById('newNameInput').value || myName;
+      myPic = document.getElementById('newPicInput').value || myPic;
+      localStorage.setItem('chat_name', myName);
+      localStorage.setItem('chat_pic', myPic);
+      location.reload();
   };
 
-  // Mesajlaşma
+  window.toggleSettings = () => {
+      const m = document.getElementById('settings-modal');
+      m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+  };
+
+  document.getElementById('display-name').innerText = myName;
+  document.getElementById('my-avatar-img').src = myPic;
+
+  // Yazır... Funksiyası
+  let typingTimeout;
+  document.getElementById('msgInput').addEventListener('input', () => {
+      set(ref(db, 'typing/' + myId), { name: myName, isTyping: true });
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+          remove(ref(db, 'typing/' + myId));
+      }, 2000);
+  });
+
+  onValue(typingRef, (snap) => {
+      const typers = snap.val();
+      const indicator = document.getElementById('typing-indicator');
+      let text = "";
+      if (typers) {
+          Object.values(typers).forEach(t => {
+              if (t.name !== myName) text = t.name + " yazır...";
+          });
+      }
+      indicator.innerText = text;
+  });
+
+  // Mesaj Göndərmə
   window.sendMessage = () => {
       const input = document.getElementById('msgInput');
       if (input.value.trim()) {
           push(messagesRef, {
+              senderId: myId,
               name: myName,
               pic: myPic,
               text: input.value,
               time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
           });
           input.value = "";
+          remove(ref(db, 'typing/' + myId));
       }
   };
 
+  // Mesaj Silmə Funksiyası
+  window.deleteMessage = (key) => {
+      if (confirm("Bu mesajı hamıdan silmək istəyirsən?")) {
+          remove(ref(db, 'messages/' + key));
+      }
+  };
+
+  // Mesajları Dinləmək
   onChildAdded(messagesRef, (data) => {
       const m = data.val();
+      const key = data.key;
+      const isMe = m.senderId === myId;
       const container = document.getElementById('chat-container');
-      const isMe = m.name === myName;
       
       const div = document.createElement('div');
       div.className = `message-wrapper ${isMe ? 'my-msg' : ''}`;
+      div.id = "msg-" + key;
       div.innerHTML = `
           <img src="${m.pic}" class="header-avatar" style="width:30px; height:30px;">
-          <div class="msg-content ${isMe ? 'sent' : 'received'}">
-              <div style="font-size:11px; font-weight:bold; color:#075e54">${isMe ? 'Sən' : m.name}</div>
+          <div class="msg-content ${isMe ? 'sent' : 'received'}" onclick="${isMe ? `deleteMessage('${key}')` : ''}">
+              <div style="font-size:11px; font-weight:bold; color:#075e54">${m.name}</div>
               <div>${m.text}</div>
               <div style="font-size:9px; color:#999; text-align:right">${m.time}</div>
           </div>
       `;
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
+  });
+
+  // Silinən Mesajı Ekrandan Yox Etmək
+  onChildRemoved(messagesRef, (data) => {
+      const el = document.getElementById("msg-" + data.key);
+      if (el) el.remove();
   });
 
   document.getElementById('msgInput').addEventListener("keypress", (e) => { if(e.key === "Enter") sendMessage(); });
